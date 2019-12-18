@@ -1,0 +1,209 @@
+<resources>
+    <string name="app_name">Foodatory</string>
+
+    <string name="kakao_app_key">19375826299b1874307869d718e39fd7</string>
+    <string name="naver_client_id">ecfa1vOcNOfBd6f0jpHD</string>
+    <string name="naver_client_secret">ihEy5wnQvI</string>
+
+
+
+    <!--버튼-->
+    <string name="previous">이전</string>
+    <string name="next">다음</string>
+    <string name="cancel">취소</string>
+    <string name="done">완료</string>
+    <string name="confirm">확인</string>
+    <string name="search">검색</string>
+    <string name="delete">삭제</string>
+
+    <string name="more">더보기</string>
+    <string name="signIn">로그인</string>
+    <string name="signUp">계정이 없으신가요?  회원가입</string>
+
+    <!--다이얼로그-->
+    <string name="shot_again">다시 사진찍기</string>
+    <string name="search_food">음식 검색하기</string>
+    <string name="notice_detection">이미지 인식중입니다.\n잠시만 기다려주세요.</string>
+
+
+    <!--회원정보-->
+    <string name="height">키</string>
+    <string name="age">나이</string>
+    <string name="gender">성별</string>
+    <string name="current_weight">몸무게</string>
+    <string name="goal_weight">목표 몸무게</string>
+    <string name="nickname">닉네임</string>
+    <string name="active_level">활동수준</string>
+
+    <string name="level_sedentary">앉아있는</string>
+    <string name="level_slightly_active">약간 활동적</string>
+    <string name="level_active">활동적</string>
+    <string name="level_extremely_active">매우 활동적</string>
+
+    <string name="goal_loss">체중 감량</string>
+    <string name="goal_main">체중 유지</string>
+    <string name="goal_gain">체중 증가</string>
+
+    <!--식사시간-->
+    <string-array name="meal_time">
+        <item>아침</item>
+        <item>점심</item>
+        <item>저녁</item>
+        <item>간식</item>
+    </string-array>
+    <string name="breakfast">아침</string>
+    <string name="lunch">점심</string>
+    <string name="dinner">저녁</string>
+    <string name="snack">간식</string>
+
+
+    <!--리포트-->
+    <string name="yesterday">어제</string>
+    <string name="today">오늘</string>
+    <string name="left_calorie">1687 남음</string>
+
+    <!--단위-->
+    <string-array name="serving_size">
+        <item>g</item>
+        <item>ml</item>
+    </string-array>
+
+    <string name="g">g</string>
+    <string name="ml">ml</string>
+    <string name="mg">mg</string>
+    <string name="ug">ug</string>
+    <string name="kcal">kcal</string>
+    <string name="piece">조각</string>
+    <string name="unit">개</string>
+
+
+    <!--주영양소-->
+    <string name="serving_size">총 내용량</string>
+
+    <string name="mCalorie">칼로리</string>
+    <string name="carbohydrate">탄수화물</string>
+    <string name="sugar">당류</string>
+    <string name="protein">단백질</string>
+    <string name="fat">지방</string>
+    <string name="trans_fat">트랜스지방</string>
+    <string name="saturated_fat">포화지방</string>
+    <string name="cholesterol">콜레스테롤</string>
+
+    <!--상세영양소-->
+    <string name="dietary_fiber">식이섬유</string>
+
+    <string name="calcium">칼슘</string>
+    <string name="sodium">나트륨</string>
+    <string name="potassium">칼륨</string>
+    <string name="magnesium">마그네슘</string>
+    <string name="iron">철</string>
+    <string name="zinc">아연</string>
+
+    <string name="vitamin_a">비타민 A</string>
+    <string name="vitamin_e">비타민 E</string>
+    <string name="vitamin_b1">비타민 B1</string>
+    <string name="vitamin_b2">비타민 B2</string>
+    <string name="vitamin_b3">비타민 B3</string>
+    <string name="vitamin_b9">비타민 B9</string>
+    <string name="vitamin_b12">비타민 B12</string>
+    <string name="vitamin_c">비타민C</string>
+
+    <string name="omega3">오메가3</string>
+    <string name="omega6">오메가6</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="large_text">
+        "Material is the metaphor.\n\n"
+
+        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
+        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
+        "technologically advanced and open to imagination and magic.\n"
+        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
+        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
+        "flexibility of the material creates new affordances that supercede those in the physical "
+        "world, without breaking the rules of physics.\n"
+        "The fundamentals of light, surface, and movement are key to conveying how objects move, "
+        "interact, and exist in space and in relation to each other. Realistic lighting shows "
+        "seams, divides space, and indicates moving parts.\n\n"
+
+        "Bold, graphic, intentional.\n\n"
+
+        "The foundational elements of print based design typography, grids, space, scale, color, "
+        "and use of imagery guide visual treatments. These elements do far more than please the "
+        "eye. They create hierarchy, meaning, and focus. Deliberate color choices, edge to edge "
+        "imagery, large scale typography, and intentional white space create a bold and graphic "
+        "interface that immerse the user in the experience.\n"
+        "An emphasis on user actions makes core functionality immediately apparent and provides "
+        "waypoints for the user.\n\n"
+
+        "Motion provides meaning.\n\n"
+
+        "Motion respects and reinforces the user as the prime mover. Primary user actions are "
+        "inflection points that initiate motion, transforming the whole design.\n"
+        "All action takes place in a single environment. Objects are presented to the user without "
+        "breaking the continuity of experience even as they transform and reorganize.\n"
+        "Motion is meaningful and appropriate, serving to focus attention and maintain continuity. "
+        "Feedback is subtle yet clear. Transitions are efﬁcient yet coherent.\n\n"
+
+        "3D world.\n\n"
+
+        "The material environment is a 3D space, which means all objects have x, y, and z "
+        "dimensions. The z-axis is perpendicularly aligned to the plane of the display, with the "
+        "positive z-axis extending towards the viewer. Every sheet of material occupies a single "
+        "position along the z-axis and has a standard 1dp thickness.\n"
+        "On the web, the z-axis is used for layering and not for perspective. The 3D world is "
+        "emulated by manipulating the y-axis.\n\n"
+
+        "Light and shadow.\n\n"
+
+        "Within the material environment, virtual lights illuminate the scene. Key lights create "
+        "directional shadows, while ambient light creates soft shadows from all angles.\n"
+        "Shadows in the material environment are cast by these two light sources. In Android "
+        "development, shadows occur when light sources are blocked by sheets of material at "
+        "various positions along the z-axis. On the web, shadows are depicted by manipulating the "
+        "y-axis only. The following example shows the card with a height of 6dp.\n\n"
+
+        "Resting elevation.\n\n"
+
+        "All material objects, regardless of size, have a resting elevation, or default elevation "
+        "that does not change. If an object changes elevation, it should return to its resting "
+        "elevation as soon as possible.\n\n"
+
+        "Component elevations.\n\n"
+
+        "The resting elevation for a component type is consistent across apps (e.g., FAB elevation "
+        "does not vary from 6dp in one app to 16dp in another app).\n"
+        "Components may have different resting elevations across platforms, depending on the depth "
+        "of the environment (e.g., TV has a greater depth than mobile or desktop).\n\n"
+
+        "Responsive elevation and dynamic elevation offsets.\n\n"
+
+        "Some component types have responsive elevation, meaning they change elevation in response "
+        "to user input (e.g., normal, focused, and pressed) or system events. These elevation "
+        "changes are consistently implemented using dynamic elevation offsets.\n"
+        "Dynamic elevation offsets are the goal elevation that a component moves towards, relative "
+        "to the component’s resting state. They ensure that elevation changes are consistent "
+        "across actions and component types. For example, all components that lift on press have "
+        "the same elevation change relative to their resting elevation.\n"
+        "Once the input event is completed or cancelled, the component will return to its resting "
+        "elevation.\n\n"
+
+        "Avoiding elevation interference.\n\n"
+
+        "Components with responsive elevations may encounter other components as they move between "
+        "their resting elevations and dynamic elevation offsets. Because material cannot pass "
+        "through other material, components avoid interfering with one another any number of ways, "
+        "whether on a per component basis or using the entire app layout.\n"
+        "On a component level, components can move or be removed before they cause interference. "
+        "For example, a floating action button (FAB) can disappear or move off screen before a "
+        "user picks up a card, or it can move if a snackbar appears.\n"
+        "On the layout level, design your app layout to minimize opportunities for interference. "
+        "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
+        "when a user tries to pick up one of cards.\n\n"
+    </string>
+    <string name="action_settings">Settings</string>
+
+
+    <!--기타영양소-->
+
+
+</resources>

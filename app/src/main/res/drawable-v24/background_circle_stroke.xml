@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Created by YSN Studio on 8/11/18 11:00 PM
+  ~ Copyright (c) 2018. All rights reserved.
+  ~
+  ~ Last modified 8/11/18 11:00 PM
+  -->
+
+<inset xmlns:android="http://schemas.android.com/apk/res/android">
+    <selector>
+        <item
+            android:state_pressed="true">
+            <shape android:shape="oval">
+                <stroke
+                    android:width="2dp"
+                    android:color="@color/colorAccentLight" />
+            </shape>
+        </item>
+        <item>
+            <shape android:shape="oval">
+                <stroke
+                    android:width="2dp"
+                    android:color="@color/colorAccent" />
+            </shape>
+        </item>
+    </selector>
+</inset>

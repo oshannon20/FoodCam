@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<resources>
+
+    <color name="colorAccent">#8e3dcc</color>
+    <color name="colorAccentLight">#c69ae7</color>
+
+    <color name="colorPrimary">#3DCC8E</color>
+    <color name="colorPrimaryDark">#03B898</color>
+    <color name="colorPrimaryLight">#00C68E</color>
+    <color name="grey">#4A4A4A</color>
+    <color name="light_grey">#D6D6D6</color>
+
+
+    <color name="colorGreen">#3dcc47</color>
+    <color name="colorGreenDark">#009f00</color>
+    <color name="colorGreenLight">#c3edc1</color>
+
+    <color name="colorBlue">#3dc2cc</color>
+    <color name="colorBlueLight">#b3eaec</color>
+
+
+
+    <color name="message">#7a7a7a</color>
+    <color name="row_activated">#e0e0e0</color>
+    <color name="bg_action_mode">#757575</color>
+    <color name="bg_circle_default">#666666</color>
+
+    <color name="select_photo">#80000000</color>
+
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="light_gray">#E9E6E6</color>
+    <color name="transperent">#00000000</color>
+
+
+    <color name="carbohydrate">#81D4FA</color>
+    <color name="protein">#DCE775</color>
+    <color name="fat">#FFB74D</color>
+
+</resources>

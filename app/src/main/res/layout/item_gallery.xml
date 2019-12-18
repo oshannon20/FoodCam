@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/photo_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp">
+
+        <ImageView
+            android:id="@+id/img_photo"
+            android:layout_width="100dp"
+            android:layout_height="120dp"
+            android:scaleType="center" />
+
+        <ImageView
+            android:id="@+id/img_check"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:visibility="gone"
+            android:layout_alignEnd="@id/img_photo"
+            android:src="@drawable/check"
+            android:tint="@color/colorAccent"/>
+
+        <ImageView
+            android:id="@+id/img_unchecked"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@id/img_photo"
+            android:visibility="gone"
+            android:src="@drawable/ic_radio_button_unchecked_black_24dp" />
+
+    </RelativeLayout>
+
+</LinearLayout>

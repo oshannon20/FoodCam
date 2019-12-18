@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "564990631239",
+    "firebase_url": "https://foodatory-fe22e.firebaseio.com",
+    "project_id": "foodatory-fe22e",
+    "storage_bucket": "foodatory-fe22e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564990631239:android:593fba71ceff591f480062",
+        "android_client_info": {
+          "package_name": "com.victu.foodatory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "564990631239-6908ggo9ee5j1m18e59mus225pmolmdl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.victu.foodatory",
+            "certificate_hash": "8dc4e1b6b526da5897f476378d171186701a4d62"
+          }
+        },
+        {
+          "client_id": "564990631239-q1ggqprj2k7qbjeeekda09c8g8rbl7o8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzJC7GSU1VdT25bXtfHnFA1d4vXXj4IcY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564990631239-q1ggqprj2k7qbjeeekda09c8g8rbl7o8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "564990631239-rbls9pghhti6f8gnfaagj53d5a55ro4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.victu.Foodatory"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
