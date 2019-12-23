@@ -6,41 +6,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/linear_top"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="0dp"
+        android:theme="@style/AppBarOverlay"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/camera">
+        app:layout_constraintBottom_toTopOf="@id/camera"
+        app:elevation="0dp">
 
-        <ImageView
-            android:id="@+id/img_closed"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="8dp"
-            android:padding="4dp"
-            android:src="@drawable/closed" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_margin="0dp"
+            app:title="@string/title_camera"
+            app:layout_scrollFlags="snap"
+            app:navigationIcon="@drawable/ic_close_black_24dp"
+            app:popupTheme="@style/PopupOverlay"/>
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="음식 사진"
-            android:textSize="20sp" />
-
-        <ImageView
-            android:id="@+id/img_flash"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="8dp"
-            android:padding="4dp"
-            android:src="@drawable/ic_flash_auto_black_24dp" />
-
-    </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <com.otaliastudios.cameraview.CameraView
         android:id="@+id/camera"
@@ -50,7 +38,7 @@
         app:cameraPictureSizeAspectRatio="1:1"
         app:cameraAudio="off"
         app:cameraMode="picture"
-        app:layout_constraintTop_toBottomOf="@id/linear_top"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         />

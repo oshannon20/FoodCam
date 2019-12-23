@@ -6,6 +6,8 @@
     <string name="naver_client_secret">ihEy5wnQvI</string>
 
 
+    <!--액티비티 제목-->
+    <string name="title_camera">이미지 인식</string>
 
     <!--버튼-->
     <string name="previous">이전</string>

@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     //    private SignInButton btn_google;
     private ImageView btn_google;
-    public static GoogleSignInOptions gso;
+    private GoogleSignInOptions gso;
 
     // 네이버
     public static OAuthLogin mOAuthLoginInstance;
@@ -160,6 +160,9 @@ public class LoginActivity extends AppCompatActivity {
         naver();
 
     }
+
+
+    //FIXME: 오류 발생 activity has leaked window that was originally added here
 
     private void setDialog(boolean show){
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
@@ -278,7 +281,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                 } else {
-                    Log.d(TAG, "onResponse: ");
+                    Log.d(TAG, "onResponse: failure" + response.message());
                     loginFailure();
 
                 }
@@ -300,7 +303,8 @@ public class LoginActivity extends AppCompatActivity {
      * @param isLogin
      */
     private void moveActivity(boolean isLogin) {
-        setDialog(false);
+        //setDialog(false);
+
         if(isLogin){
             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(intent);
@@ -318,7 +322,7 @@ public class LoginActivity extends AppCompatActivity {
      * 계정이 있는 경우 false - 로그인
      */
     private void emailCheck() {
-        setDialog(true);
+     //   setDialog(true);
 
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("mem_login_type", loginType);
@@ -370,7 +374,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     protected void loginFailure() {
-        setDialog(false);
+       // setDialog(false);
         Toast.makeText(mContext, "로그인 실패", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
@@ -561,6 +565,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void firebaseAuthWithGoogle(final GoogleSignInAccount signInAccount) {
+        Log.d(TAG, "firebaseAuthWithGoogle: 1");
         AuthCredential credential = GoogleAuthProvider.getCredential(signInAccount.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -596,6 +601,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 구글 로그인
         if (requestCode == GOOGLE_SIGN_IN) {
+            Log.d(TAG, "onActivityResult: 구글 로그인");
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // 구글 로그인에 성공했음. firebase로 인증한다.

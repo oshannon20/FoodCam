@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import com.victu.foodatory.MainActivity;
 import com.victu.foodatory.camera.CameraActivity;
 import com.victu.foodatory.gallery.GalleryActivity;
 import com.victu.foodatory.home.model.Meal;
@@ -273,13 +274,15 @@ public class HomeActivity extends AppCompatActivity {
                     // Log.d(TAG, "setMealData:  " + item);
 
                     // 데이터 가져온다.
-                    int calorie = item.getInt("calorie");
+                    int calorie = item.getInt("food_calorie");
                     String name = item.getString("food_name");
                     Log.d(TAG, "setMealData: " + calorie + "/" + name);
-                    double cho = item.getDouble("cho"); // 탄수화물
-                    double fat = item.getDouble("fat"); //  지방
-                    double pro = item.getDouble("pro"); // 단백질
-                    imagePath = item.getString("meal_photo_path");
+                    double cho = item.getDouble("food_carbohydrate"); // 탄수화물
+                    double fat = item.getDouble("food_fat"); //  지방
+                    double pro = item.getDouble("food_protein"); // 단백질
+                    // FIXME: meal_photo_no만 오는데 경로 오도록 변경해야 함
+                    imagePath = "https://www.foodatory.xyz/userimages/2019/12/20/2@20191220210212789.jpg";
+//                    imagePath = item.getString("meal_photo_no");
 
                     // recyclerView 에 나타낼 정보
                     Meal meal = new Meal(name, calorie);
@@ -528,7 +531,7 @@ public class HomeActivity extends AppCompatActivity {
         bottom_menu2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, FoodDetailActivity.class);
+                Intent intent = new Intent(HomeActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -548,7 +551,6 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, GalleryActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 

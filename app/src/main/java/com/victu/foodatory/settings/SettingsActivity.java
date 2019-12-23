@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.kakao.auth.ApiErrorCode;
 import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
@@ -25,6 +26,7 @@ import com.kakao.usermgmt.callback.UnLinkResponseCallback;
 import com.nhn.android.naverlogin.OAuthLogin;
 import com.victu.foodatory.R;
 import com.victu.foodatory.camera.CameraActivity;
+import com.victu.foodatory.gallery.GalleryActivity;
 import com.victu.foodatory.home.HomeActivity;
 import com.victu.foodatory.user.LoginActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -188,7 +190,13 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void googleAccount() {
-        mGoogleSignInClient = GoogleSignIn.getClient(this, LoginActivity.gso);
+        // 구글 로그인 환경설정
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
 
         if (clickType == 1) {
@@ -314,9 +322,8 @@ public class SettingsActivity extends AppCompatActivity {
         bottom_menu4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
-//                startActivity(intent);
-//                finish();
+                Intent intent = new Intent(SettingsActivity.this, GalleryActivity.class);
+                startActivity(intent);
             }
         });
 

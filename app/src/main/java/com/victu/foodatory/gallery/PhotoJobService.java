@@ -8,7 +8,6 @@ import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,25 +15,16 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.google.gson.JsonObject;
 import com.victu.foodatory.FoodNonfoodClassifier;
-import com.victu.foodatory.camera.CameraActivity;
 import com.victu.foodatory.utils.DatabaseHandler;
 import com.victu.foodatory.utils.RetrofitConnection;
 import com.victu.foodatory.utils.RetrofitInterface;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -116,7 +106,7 @@ public class PhotoJobService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        Log.e("PhotoJobService", "JOB STARTED!");
+        Log.e(TAG, "JOB STARTED!");
         mRunningParams = params;
 
         databaseHandler=new DatabaseHandler(getApplicationContext());
@@ -199,10 +189,12 @@ public class PhotoJobService extends JobService {
                                 // 2. 음식 사진인지 확인하기 위해 URI를 가져온다.
                                 if(checkFood(uri)){
                                     // 음식 사진이라면 DB에 저장한다.
-//                                    String name = cursor.getString(PROJECTION_TITLE); // 20191210_222933.jpg
-//                                    Log.d(TAG, "onStartJob: " + name);
+                                    String name = cursor.getString(PROJECTION_TITLE); // 20191210_222933.jpg
+                                    Log.d(TAG, "onStartJob: " + name);
 
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+//                                    SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd");
+
                                     SimpleDateFormat timeFormat = new SimpleDateFormat ( "HH");
 
                                     long dateAdded = cursor.getLong(PROJECTION_TIME); // 1576041811811
@@ -232,10 +224,10 @@ public class PhotoJobService extends JobService {
                                     Log.d(TAG, "onStartJob: " + time);
 
                                     // 서버로 이미지 파일을 전송하여 저장한다.
-                                    uploadToServer(filePath, time, date);
+//                                    uploadToServer(filePath, time, date);
 
-//                                    databaseHandler.insertPhoto(name, filePath, stringUri, date, time);
-//                                    Log.d(TAG, "onStartJob: " + databaseHandler.showPhotos());
+                                    databaseHandler.insertPhoto(name, filePath, stringUri, date, time);
+                                    Log.d(TAG, "onStartJob: " + databaseHandler.showPhotos());
 
                                 }
 
@@ -299,6 +291,8 @@ public class PhotoJobService extends JobService {
         RetrofitInterface uploadAPIs = retrofit.create(RetrofitInterface.class);
 
         File file = new File(filePath);
+        Log.d(TAG, "uploadToServer: filePath " + filePath);
+        Log.d(TAG, "uploadToServer: file " + file);
 
         // 이미지 파일이 포함된 RequestBody를 생성한다.
         RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
@@ -317,21 +311,20 @@ public class PhotoJobService extends JobService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d(TAG, "uploadToServer: " + map);
 
 
-        Call call = uploadAPIs.postImageBackground(part, map);
+        Call call = uploadAPIs.detectFoodFromBackground(part, map);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call call, Response response) {
                 if (response.isSuccessful()) {
                     // 성공적으로 서버에서 데이터 불러왔을 때
-                    Log.d(TAG, "uploadToServer onResponse: " + response.message());
-                    Log.d(TAG, "uploadToServer onResponse: " + response.code());
+                    Log.d(TAG, "uploadToServer onResponse: " + response.message() + " " + response.code());
 
                 } else {
                     // 서버와 연결은 되었으나, 오류가 발생했을 때
-                    Log.d(TAG, "uploadToServer: onResponse failure " + response.message());
-
+                    Log.d(TAG, "uploadToServer onResponse: failure " + response.message() + " " + response.code());
                 }
             }
 
@@ -372,7 +365,8 @@ public class PhotoJobService extends JobService {
 
                 // 음식이다.
                 //TODO: 적절한 값 설정
-                if(foodRatio>0.1){
+//                return true;
+                if(foodRatio>0.8){
                     Log.d(TAG, "checkFood: 사진에 음식 있음");
                     return true;
                 }else{
@@ -478,9 +472,9 @@ public class PhotoJobService extends JobService {
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         int result =jobScheduler.schedule(myCameraJob);
         if (result == JobScheduler.RESULT_SUCCESS) {
-            Log.e(TAG," JobScheduler OK");
+            Log.d(TAG," JobScheduler OK");
         } else {
-            Log.e(TAG," JobScheduler fails");
+            Log.d(TAG," JobScheduler fails");
         }
     }
 }

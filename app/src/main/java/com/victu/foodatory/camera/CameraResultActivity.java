@@ -1,49 +1,36 @@
 package com.victu.foodatory.camera;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.victu.foodatory.SearchActivity;
+import com.victu.foodatory.search.SearchActivity;
 import com.victu.foodatory.home.HomeActivity;
 import com.victu.foodatory.detail.FoodDetailActivity;
 import com.victu.foodatory.R;
@@ -54,51 +41,50 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage;
-
-public class CameraResultActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+public class CameraResultActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CameraResultActivity";
 
     // 뷰
-    private ImageView img_photo, img_back;
-    private TextView txt_result, txt_date, txt_calorie;
-    private Spinner spinner_time;
+    private ImageView img_photo;
+    private TextView txt_calorie;
     private Button btn_done, btn_search;
 
     private RecyclerView recyclerView;
     private CameraResultAdapter cameraResultAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private MenuItem menu_time, menu_change_date;
+
     // 서버로 넘겨줄 데이터
-    private String imagePath;
+    private String imagePath, mTime, mDate;
 
-    private String mTime;
+    // 원본 이미지 사진
+    private Bitmap originalBitmap;
 
-    private Bitmap originalBitmap; // 원본 이미지 사진
+    // 이미지 인식 결과 담는 리스트
+    private ArrayList<DetectionData> detectionArrayList;
 
-    private ArrayList<DetectionData> detectionArrayList; // 이미지 인식 결과 담는 리스트
-
+    // 서버 요청하는 Retrofit
     Retrofit retrofit;
     RetrofitInterface uploadAPIs;
 
+    // 회원 정보 담은 sharedPreferences
     SharedPreferences autoLogin;
     int userId;
     String token;
+
+    // 인텐트로 넘겨받은 이미지 파일 주소
+    private String filePath;
 
 
     @Override
@@ -120,47 +106,50 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
         detectionArrayList = new ArrayList<>();
 
         initViews();
-        test();
+
         getImage();
 
     }
 
-    private void test() {
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
-
-        /**
-         * https://stackoverflow.com/questions/31662416/show-collapsingtoolbarlayout-title-only-when-collapsed
-         */
-        AppBarLayout appBarLayout =  findViewById(R.id.appbar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean isShow = true;
-            int scrollRange = -1;
-
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (scrollRange == -1) {
-                    scrollRange = appBarLayout.getTotalScrollRange();
-                }
-                if (scrollRange + verticalOffset == 0) {
-                    collapsingToolbar.setTitle("날짜");
-                    isShow = true;
-                } else if(isShow) {
-                    collapsingToolbar.setTitle(" ");//careful there should a space between double quote otherwise it wont work
-                    isShow = false;
-                }
-            }
-        });
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.sample_actions, menu);
+        menu_time = menu.findItem(R.id.menu_time);
+        menu_time.setTitle(mTime);
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                moveHomeActivity();
+                break;
+
+            case R.id.menu_breakfast:
+                mTime = "아침";
+                break;
+
+            case R.id.menu_lunch:
+                mTime = "점심";
+                break;
+
+            case R.id.menu_dinner:
+                mTime = "저녁";
+                break;
+
+            case R.id.menu_snack:
+                mTime = "간식";
+                break;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        menu_time.setTitle(mTime);
+        return true;
+    }
+
 
     /**
      *                뷰 관련 코드
@@ -171,20 +160,8 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
      */
     private void initViews() {
         img_photo = findViewById(R.id.img_photo);
+
         txt_calorie = findViewById(R.id.txt_calorie);
-
-//        txt_date = findViewById(R.id.txt_date);
-
-//        img_back = findViewById(R.id.img_back);
-//        img_back.setOnClickListener(this);
-
-//        spinner_time = findViewById(R.id.spinner_time);
-//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-//                R.array.meal_time, android.R.layout.simple_spinner_item);
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spinner_time.setAdapter(adapter);
-//        spinner_time.setOnItemSelectedListener(this);
-
 
         btn_search = findViewById(R.id.btn_search);
         btn_search.setOnClickListener(this);
@@ -195,20 +172,41 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
         // 메인 홈 화면에서 추가 버튼을 누른 경우: 인텐트에서 날짜와 시간을 받아온다.
         String time = getIntent().getStringExtra("mTime");
         String date = getIntent().getStringExtra("mDate");
-       // setDate(time, date);
+        setDate(time, date);
 
-    }
 
-    /**
-     * 스피너 선택
-     */
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mTime = parent.getItemAtPosition(position).toString();
-    }
+        // 상단 바 레이아웃 설정
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
+
+        /**
+         * https://stackoverflow.com/questions/31662416/show-collapsingtoolbarlayout-title-only-when-collapsed
+         */
+        AppBarLayout appBarLayout = findViewById(R.id.appbar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = true;
+            int scrollRange = -1;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapsingToolbar.setTitle(mDate);
+                    collapsingToolbar.setCollapsedTitleTextColor(getResources().getColor(R.color.white));
+                    isShow = true;
+                } else if (isShow) {
+                    collapsingToolbar.setTitle(" ");//careful there should a space between double quote otherwise it wont work
+                    isShow = false;
+                }
+            }
+        });
 
     }
 
@@ -221,16 +219,10 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-//            case R.id.img_back:
-                // 카메라액티비티로 이동한다.
-//                Intent intent = new Intent(CameraResultActivity.this, CameraActivity.class);
-//                startActivity(intent);
-//                finish();
-//                break;
 
             case R.id.btn_search:
                 // 검색 액티비티로 이동한다.
-                moveSearchAcitivy(0);
+                moveSearchActivity(0);
 
                 break;
 
@@ -255,30 +247,38 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
      *
      * @param foodNo
      */
-    private void moveSearchAcitivy(int foodNo) {
+    private void moveSearchActivity(int foodNo) {
         Intent intent = new Intent(CameraResultActivity.this, SearchActivity.class);
+        intent.putExtra("foodNo", foodNo);
+        intent.putExtra("filePath", filePath);
         startActivity(intent);
-        finish();
+        //finish();
     }
 
     //TODO: 수량변경시 칼로리도 변한다.
-    //TODO: 전체 칼로리 계산
 
     /**
      * 전체 칼로리를 계산하는 메소드이다.
      * 결과 arraylist에서 칼로리를 가져와 더해준다.
      */
-    private void calCalorie() {
-        for (int i = 0; i < detectionArrayList.size(); i++) {
+    private void setCalorie() {
+        int totalCalorie =0;
 
+        for (int i = 0; i < detectionArrayList.size(); i++) {
+            int getmCalorie = detectionArrayList.get(i).getmCalorie();
+            totalCalorie = totalCalorie + getmCalorie;
         }
 
+        Log.d(TAG, "calCalorie: " + totalCalorie);
+        String text = totalCalorie + "kcal";
+        txt_calorie.setText(text);
     }
 
 
     /**
      * 완료 버튼을 클릭했을 때, 서버로 데이터를 전송하여 식사 정보를 저장한다.
      */
+    //FIXME: 토큰 만료되어서 그런가?
     private void saveMeal() {
         // 현재 시간 계산. server에서 연월일시분초까지 요구해서 일단 이 포맷으로 보냄. 나중에 수정?
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -291,30 +291,30 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
 
         JsonObject jsonObj = new JsonObject();
         jsonObj.addProperty("mem_uid", userId);
-        jsonObj.addProperty("meal_photo_path", imagePath);
+        jsonObj.addProperty("meal_photo_no", imagePath);
+        jsonObj.addProperty("meal_type", mTime);
+        jsonObj.addProperty("meal_datetime", date);
 
 
         for (int i = 0; i < detectionArrayList.size(); i++) {
             JsonObject jsonObject = new JsonObject();
             // 전체 식사 정보
             jsonObject.addProperty("mem_uid", userId);
-            jsonObject.addProperty("meal_time", mTime);
-            jsonObject.addProperty("meal_date", date);
 
             // 각각의 음식 정보
             jsonObject.addProperty("food_no", detectionArrayList.get(i).getFoodNo());
             jsonObject.addProperty("food_name", detectionArrayList.get(i).getFoodName());
-            jsonObject.addProperty("calorie", detectionArrayList.get(i).getmCalorie());
-            jsonObject.addProperty("cho", detectionArrayList.get(i).getCarbohydrate());
-            jsonObject.addProperty("pro", detectionArrayList.get(i).getProtein());
-            jsonObject.addProperty("fat", detectionArrayList.get(i).getFat());
-            jsonObject.addProperty("weight", detectionArrayList.get(i).getmWeight());
-            //TODO: 단위도 변경하도록 수정
-            jsonObject.addProperty("unit", "g");
+            jsonObject.addProperty("food_calorie", detectionArrayList.get(i).getmCalorie());
+            jsonObject.addProperty("food_carbohydrate", detectionArrayList.get(i).getCarbohydrate());
+            jsonObject.addProperty("food_protein", detectionArrayList.get(i).getProtein());
+            jsonObject.addProperty("food_fat", detectionArrayList.get(i).getFat());
+            jsonObject.addProperty("food_amount", detectionArrayList.get(i).getmWeight());
+            //TODO: 단위도 변경하도록 수정 (단위 int값. 200ml= 1 cup)
+            jsonObject.addProperty("meal_unit", "g");
 
             jsonArray.add(jsonObject);
         }
-        jsonObj.add("meal", jsonArray);
+        jsonObj.add("food", jsonArray);
 
         Log.d(TAG, "saveMeal: " + jsonObj);
 
@@ -330,9 +330,8 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
                 if (response.isSuccessful()) {
                     // 성공적으로 서버에서 데이터 불러왔을 때
                     // 메인 홈화면으로 이동한다.
-                    Intent i = new Intent(CameraResultActivity.this, HomeActivity.class);
-                    startActivity(i);
-                    finish();
+                    moveHomeActivity();
+
 
                 } else {
                     Log.d(TAG, "onResponse: 서버 오류로 실패 ");
@@ -352,6 +351,17 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
 
     }
 
+    private void moveHomeActivity() {
+        Intent i = new Intent(CameraResultActivity.this, HomeActivity.class);
+        startActivity(i);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        moveHomeActivity();
+    }
 
     /**
      * 오늘 날짜와 식사시간을 입력해준다.
@@ -359,50 +369,50 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
      * @param time
      * @param date
      */
-//    private void setDate(String time, String date) {
-//        Log.d(TAG, "setDate: " + time + "/" + date);
-//        // 하단 메뉴의 카메라 버튼을 누른 경우: 시스템에서 시간을 받아와 설정해준다.
-//        if (time == null || date == null) {
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("MM월 dd일");
-//            SimpleDateFormat timeFormat = new SimpleDateFormat("HH");
-//
-//            Calendar calendar = Calendar.getInstance();
-//            date = dateFormat.format(calendar.getTime());
-//            Log.d(TAG, "setDate: " + date);
-//
-//            int currentTime = Integer.parseInt(timeFormat.format(calendar.getTime()));
-//            Log.d(TAG, "initViews: 오늘날짜 " + date + "/시간 " + currentTime);
-//
-//
-////            // 현재시간에 따라 식사시간을 설정해 spinner에 나타낸다.
-////            // 06-11시 아침, 11-14시 점심, 17-21 저녁, 그 외 간식
-////            if (currentTime >= 6 && currentTime <= 11) {
-////                spinner_time.setSelection(0);
-////            } else if (currentTime >= 11 && currentTime <= 14) {
-////                spinner_time.setSelection(1);
-////            } else if (currentTime >= 17 && currentTime <= 21) {
-////                spinner_time.setSelection(2);
-////            } else {
-////                spinner_time.setSelection(3);
-////            }
-//
-//        }
-//        // 메인 홈 화면에서 추가 버튼을 누른 경우
-//        else {
-////            if (time.equals("아침")) {
-////                spinner_time.setSelection(0);
-////            } else if (time.equals("점심")) {
-////                spinner_time.setSelection(1);
-////            } else if (time.equals("저녁")) {
-////                spinner_time.setSelection(2);
-////            } else {
-////                spinner_time.setSelection(3);
-////            }
-//        }
-//
-//        // 날짜는 TextView에 값을 넣어준다.
-//        txt_date.setText(date);
-//    }
+    private void setDate(String time, String date) {
+        Log.d(TAG, "setDate: " + time + "/" + date);
+
+        // 하단 메뉴의 카메라 버튼을 누른 경우:
+        // 인텐트로 전달된 값이 없으므로, 시스템에서 시간을 받아와 설정해준다.
+        if (time == null || date == null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM월 dd일");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH");
+
+            Calendar calendar = Calendar.getInstance();
+            date = dateFormat.format(calendar.getTime());
+            Log.d(TAG, "setDate: " + date);
+
+            int currentTime = Integer.parseInt(timeFormat.format(calendar.getTime()));
+            Log.d(TAG, "initViews: 오늘날짜 " + date + "/시간 " + currentTime);
+
+
+            // 06-11시 아침, 11-14시 점심, 17-21 저녁, 그 외 간식
+            if (currentTime >= 6 && currentTime <= 11) {
+                mTime = "아침";
+            } else if (currentTime >= 11 && currentTime <= 14) {
+                mTime = "점심";
+            } else if (currentTime >= 17 && currentTime <= 21) {
+                mTime = "저녁";
+            } else {
+                mTime = "간식";
+            }
+
+        }
+        // 메인 홈 화면에서 추가 버튼을 누른 경우
+        else {
+            if (time.equals("아침")) {
+                mTime = "아침";
+            } else if (time.equals("점심")) {
+                mTime = "점심";
+            } else if (time.equals("저녁")) {
+                mTime = "저녁";
+            } else {
+                mTime = "간식";
+            }
+        }
+
+        mDate = date;
+    }
 
 
     /**
@@ -434,7 +444,8 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
             public void onEditClick(int position) {
 
                 //TODO: 일단 0으로 두고 나중에 추천음식 구현하면 foodNo 넘겨줄 것
-                moveSearchAcitivy(0);
+                moveSearchActivity(0);
+
             }
 
             // 음식의 상세영양정보를 보고 싶은 경우
@@ -452,14 +463,46 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
                 detectionArrayList.remove(position);
                 cameraResultAdapter.notifyItemRemoved(position);
                 showLabel(); // 음식 지운 경우 레이블도 지워야 하므로 다시 그린다.
+                setCalorie(); // 칼로리도 변경
 
             }
 
-            // 음식의 수량을 변경한 경우
+            // 수량을 변경한 경우
             @Override
-            public void onSetWeight(int position) {
+            public void onWeightChanged(int position, int amount) {
+                Log.d(TAG, "onWeightChanged: " + amount);
+                // 기존 칼로리와 양
+                int calorieBefore = detectionArrayList.get(position).getmCalorie();
+                int amountBefore = detectionArrayList.get(position).getmWeight();
+                Log.d(TAG, "onWeightChanged: 기존 " + calorieBefore + " " + amountBefore);
+
+                // 변경 칼로리 = 기존 칼로리 x (변경양/기존양)
+                // 가중치가 정수가 아니기 때문에 int -> float -> int 로 변경
+                // int로 하면 0값 나옴.
+                // https://stackoverflow.com/questions/4931892/why-does-the-division-of-two-integers-return-0-0-in-java
+                float percentage = ((float) amount) / amountBefore;
+                Log.d(TAG, "onWeightChanged: " + percentage);
+
+                float cal = ((float) calorieBefore) * percentage;
+                Log.d(TAG, "onWeightChanged: " + cal);
+
+                int calorieAfter = (int) cal;
+                Log.d(TAG, "onWeightChanged: " + calorieAfter);
+
+                // 변경 칼로리와 양 arrayList에 넣어주기
+                detectionArrayList.get(position).setmWeight(amount);
+                detectionArrayList.get(position).setmCalorie(calorieAfter);
+
+                Log.d(TAG, "onWeightChanged: 이후 " + calorieBefore + " " + amountBefore);
+
+                // 전체 칼로리 다시 계산
+                setCalorie();
+
+                // recyclerView에 변경사항 나타내기
+                cameraResultAdapter.notifyDataSetChanged();
 
             }
+
         });
 
     }
@@ -474,7 +517,7 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
     private void getImage() {
         Intent intent = getIntent();
 
-        String filePath = intent.getStringExtra("filePath");
+        filePath = intent.getStringExtra("filePath");
 
         String detectResult = intent.getStringExtra("result");
         Uri imageUri = intent.getData(); //사진의 uri
@@ -492,7 +535,10 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
         handleResult(detectResult); // 결과를 처리한다.
     }
 
-
+    /**
+     * response로 온 String을 JSON에 담아 처리한다.
+     * @param result CameraActivity에서 intent로 넘겨받은 인식 결과 string이다.
+     */
     private void handleResult(String result) {
         try {
             JSONObject jsonObject = new JSONObject(result);
@@ -512,14 +558,14 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
 
                 String foodName = item.getString("food_name");
                 //FIXME: foodNo 제대로 안 옴. (서버 확인할 것)
-                int foodNo = 1;
-//                int foodNo = item.getInt("food_no");
-                int calorie = item.getInt("enerc");
-                int weight = item.getInt("weight");
 
-                int carbohydrate = item.getInt("carbohydrate");
-                int protein = item.getInt("protein");
-                int fat = item.getInt("fat");
+                int foodNo = item.getInt("food_no");
+                int calorie = item.getInt("food_calorie");
+                int amount = item.getInt("food_amount");
+
+                int carbohydrate = item.getInt("food_carbohydrate");
+                int protein = item.getInt("food_protein");
+                int fat = item.getInt("food_fat");
 
                 int x1 = item.getInt("x1");
                 int x2 = item.getInt("x2");
@@ -527,14 +573,14 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
                 int y2 = item.getInt("y2");
 
                 Log.d(TAG, "onResponse: " + foodName + " " + x1 + " " + x2 + " " + y1 + " " + y2);
-                Log.d(TAG, "onResponse: foodNo " + foodNo + "/calorie " + calorie + "/weight " + weight);
+                Log.d(TAG, "onResponse: foodNo " + foodNo + "/calorie " + calorie + "/weight " + amount);
 
 
                 DetectionData detection = new DetectionData();
                 detection.setFoodName(foodName);
                 detection.setFoodNo(foodNo);
                 detection.setmCalorie(calorie);
-                detection.setmWeight(weight);
+                detection.setmWeight(amount);
 
                 detection.setCarbohydrate(carbohydrate);
                 detection.setFat(fat);
@@ -548,11 +594,15 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
                 detectionArrayList.add(detection);
             }
 
+            // 리사이클러뷰에 인식된 음식을 나타낸다.
+            buildRecyclerView();
+
             // 라벨을 나타낸다.
             showLabel();
 
-            // 리사이클러뷰에 인식된 음식을 나타낸다.
-            buildRecyclerView();
+            // 칼로리를 나타낸다.
+            setCalorie();
+
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -560,7 +610,8 @@ public class CameraResultActivity extends AppCompatActivity implements View.OnCl
     }
 
 
-
+    //TODO: 중간값 주면 수정할 것
+    //FIXME: 라벨 너무 큼
     /**
      * 인식한 음식의 이름을 이미지 위에 그려 bitmap을 반환한다.
      **/

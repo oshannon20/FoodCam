@@ -2,9 +2,10 @@ package com.victu.foodatory.camera;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -12,6 +13,7 @@ import androidx.exifinterface.media.ExifInterface;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -23,20 +25,20 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.otaliastudios.cameraview.BitmapCallback;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.FileCallback;
@@ -46,7 +48,6 @@ import com.victu.foodatory.home.HomeActivity;
 import com.victu.foodatory.utils.RetrofitConnection;
 import com.victu.foodatory.utils.RetrofitInterface;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,8 +58,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -68,13 +67,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage;
-
 public class CameraActivity extends AppCompatActivity {
     private static final String TAG = "CameraActivity";
 
     // 레이아웃 뷰들
-    private ImageView img_closed, img_flash, img_shutter, img_gallery, img_search, img_result;
+    private ImageView img_shutter, img_gallery, img_search, img_result;
     private CameraView cameraKitView;
     AlertDialog dialog;
 
@@ -113,6 +110,16 @@ public class CameraActivity extends AppCompatActivity {
     private void initViews() {
         setCamera();
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar supportActionBar = getSupportActionBar();
+
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
+            supportActionBar.setDisplayShowHomeEnabled(true);
+        }
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_black_24dp);
+
      //   img_result = findViewById(R.id.img_result);
 
         // 셔터를 눌렀을 때
@@ -146,6 +153,33 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        closeActivity();
+
+    }
+
+    private void closeActivity() {
+        Intent intent = new Intent(CameraActivity.this, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                closeActivity();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
@@ -182,7 +216,7 @@ public class CameraActivity extends AppCompatActivity {
 
                         showProgressDialog();
 
-                        //uploadToServer(filePath);
+                        uploadToServer(filePath);
 
                     }
 
@@ -286,7 +320,7 @@ public class CameraActivity extends AppCompatActivity {
         Log.d(TAG, "uploadToServer: " + description);
 
 
-        Call call = uploadAPIs.postFoodImage(part, description);
+        Call call = uploadAPIs.detectFood(part, description);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call call, Response response) {
@@ -333,7 +367,7 @@ public class CameraActivity extends AppCompatActivity {
                 // 서버와 연결 실패
                 dismissProgressDialog();
                 Log.d(TAG, "onFailure: " + t.getMessage());
-                Toast.makeText(CameraActivity.this, "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CameraActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -362,6 +396,32 @@ public class CameraActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         dialog.show();
+
+        // 10초 후에도 인식을 못한 경우 실패 다이얼로그를 띄워준다.
+
+        final Handler handler  = new Handler();
+
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                    //FIXME: 확인할 것
+                    failedToDetect();
+
+                }
+            }
+        };
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                handler.removeCallbacks(runnable);
+            }
+        });
+
+        handler.postDelayed(runnable, 10000);
+
     }
 
 
@@ -426,7 +486,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     /**
-     * 여기서부터는 카메라 관련 코드이다.
+     *      ======================== 여기서부터는 카메라 관련 코드이다.
      */
 
     private View.OnClickListener photoOnClickListener = new View.OnClickListener() {

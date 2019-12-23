@@ -39,23 +39,38 @@ public interface RetrofitInterface {
      */
 
     /**
-     * 유저가 음식 사진을 찍었을 때 이미지를 서버로 전송함
+     * CameraActivity에서 유저가 음식 사진을 찍었을 때나
+     * 갤러리에서 이미지를 불러왔을 때, 이미지를 서버로 전송함
      * @param file
      * @param requestBody
      * @return
      */
     @Multipart  // 요청하는 body의 content type이 multipart(list of parts)이다.
-    @POST("detect") // BASE_URL 다음 주소 (마지막에 slash 빼야함)
-    Call<String> postFoodImage(@Part MultipartBody.Part file, @Part("name") RequestBody requestBody);
+    @POST("detect/fromapp") // BASE_URL 다음 주소 (마지막에 slash 빼야함)
+    Call<String> detectFood(@Part MultipartBody.Part file, @Part("name") RequestBody requestBody);
 
 
     /**
-     * 백그라운드에서 음식사진을 인식해서 전송함
-     *
+     * 사용자가 핸드폰 카메라로 사진을 찍었을 경우,
+     * 사진을 가져와서 서버로 전송해 인식한다.
+     * @param file
+     * @param params
+     * @return
      */
-    @Multipart  // 요청하는 body의 content type이 multipart(list of parts)이다.
-    @POST("detect_background")
-    Call<String> postImageBackground(@Part MultipartBody.Part file, @PartMap Map<String, RequestBody> params);
+    @Multipart
+    @POST("detect/frombackground")
+    Call<String> detectFoodFromBackground(@Part MultipartBody.Part file, @PartMap Map<String, RequestBody> params);
+
+
+    /**
+     * 인식한 음식이 부정확할 경우 유사음식을 추천받을 수 있다.
+     * @param file
+     * @param requestBody
+     * @return
+     */
+    @Multipart
+    @POST("detect/wrecommendation")
+    Call<String> foodRecommendation(@Part MultipartBody.Part file, @Part("name") RequestBody requestBody);
 
 
 

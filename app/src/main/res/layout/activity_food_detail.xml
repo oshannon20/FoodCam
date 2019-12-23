@@ -7,7 +7,7 @@
     tools:context=".detail.FoodDetailActivity">
 
     <LinearLayout
-        android:id="@+id/linear_top"
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linear_top"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
         app:srcCompat="@drawable/logo" />
 
 
@@ -60,7 +60,7 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toEndOf="@+id/img_food"
-        app:layout_constraintTop_toBottomOf="@+id/linear_top" />
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
     <TextView
         android:id="@+id/txt_category"

@@ -6,6 +6,12 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="android:titleTextStyle">@color/white</item>
+        <item name="android:titleTextColor">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="android:actionMenuTextColor">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -15,8 +21,11 @@
         <item name="android:actionModeBackground">@color/colorPrimary</item>
     </style>
 
-    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
-    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" >
+
+    </style>
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" >
+        </style>
 
 
     <style name="MySpinnerDatePicker" parent="android:Widget.Material.DatePicker">

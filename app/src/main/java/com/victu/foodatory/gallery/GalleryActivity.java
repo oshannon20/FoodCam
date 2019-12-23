@@ -5,6 +5,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import com.victu.foodatory.gallery.model.DateItem;
 import com.victu.foodatory.gallery.model.GeneralItem;
 import com.victu.foodatory.gallery.model.ImageData;
 import com.victu.foodatory.gallery.model.ListItem;
+import com.victu.foodatory.utils.DatabaseHandler;
 import com.victu.foodatory.utils.RetrofitConnection;
 import com.victu.foodatory.utils.RetrofitInterface;
 
@@ -52,6 +54,7 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
     ArrayList<ImageData> imageDataArrayList; // 이미지 정보를 담은 list
     List<ListItem> consolidatedList = new ArrayList<>(); // 날짜와 이미지 담은 최종 list
     GalleryAdapter mAdapter;
+    DatabaseHandler databaseHandler;
 
     private ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
@@ -71,19 +74,26 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
 
         retrofit = RetrofitConnection.getRetrofitClient(this);
         uploadAPIs = retrofit.create(RetrofitInterface.class);
-
         imageDataArrayList= new ArrayList<>();
 
         initViews();
-        requestPhoto();
 
+        databaseHandler = new DatabaseHandler(this);
+        setRecyclerView();
 
+        //   requestPhoto();
 
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
     private void requestPhoto() {
-        Call call = uploadAPIs.getMealPhoto(32);
+        Call call = uploadAPIs.getMealPhoto(userId);
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call call, Response response) {
@@ -167,7 +177,7 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
 
     private void setRecyclerView() {
 
-      //  imageDataArrayList = databaseHandler.selectPhotos(); // SQLite에서 데이터를 가져온다.
+        imageDataArrayList = databaseHandler.selectPhotos(); // SQLite에서 데이터를 가져온다.
 
         HashMap<String, List<ImageData>> groupedHashMap = groupDataIntoHashMap(imageDataArrayList);
 
@@ -295,6 +305,7 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
      */
     @Override
     public void onPhotoLongClicked(int position) {
+        Log.d(TAG, "onPhotoLongClicked: " + position);
         enableActionMode(position);
     }
 
@@ -344,7 +355,9 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_delete:
-                    requestDelete();
+                    //requestDelete();
+
+                    deleteFromDB();
                     mode.finish();
                     return true;
 
@@ -369,6 +382,40 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
         }
     }
 
+
+
+    /**
+     * SQLite에서 삭제
+     */
+    //FIXME: 삭제 처리 다시 해야. selected에는 날짜 아이템까지 포함해서 담기고, imageDataList에는 날짜 제외하고 담긴다.
+    private void deleteFromDB() {
+        Log.d(TAG, "deleteFromRecycler: ");
+        List<Integer> selectedItemPositions = mAdapter.getSelectedItems();
+
+//        for (int i = 0; i < selectedItemPositions.size(); i++) {
+//            int no = selectedItemPositions.get(i);
+//            mAdapter.removeData(no);
+//            Log.d(TAG, "deleteFromDB: " + no);
+//
+//            int id = imageDataArrayList.get(no-1).getId();
+//            databaseHandler.deletePhotoById(id);
+//            Log.d(TAG, "deleteFromDB: " + id);
+//
+//        }
+
+        for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+            int no = selectedItemPositions.get(i);
+            mAdapter.removeData(no);
+            Log.d(TAG, "deleteFromDB: " + no);
+
+            int id = imageDataArrayList.get(no-1).getId();
+            Log.d(TAG, "deleteFromDB: " + id);
+
+            databaseHandler.deletePhotoById(id);
+        }
+
+        mAdapter.notifyDataSetChanged();
+    }
 
 
     /**
@@ -418,9 +465,6 @@ public class GalleryActivity extends AppCompatActivity implements SwipeRefreshLa
         });
 
     }
-
-
-
 
 
 

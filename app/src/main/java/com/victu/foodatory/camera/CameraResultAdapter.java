@@ -2,6 +2,8 @@ package com.victu.foodatory.camera;
 
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -13,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,8 +40,7 @@ public class CameraResultAdapter extends RecyclerView.Adapter<CameraResultAdapte
 
         void onDeleteClick(int position); // 음식을 제거한 경우
 
-        void onSetWeight(int position); // 음식의 수량을 변경한 경우
-
+        void onWeightChanged(int position, int amount); // 음식의 수량을 변경한 경우
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -69,8 +69,11 @@ public class CameraResultAdapter extends RecyclerView.Adapter<CameraResultAdapte
         String calorie = String.valueOf(currentItem.getmCalorie());
 
         holder.txt_name.setText(name);
-        holder.edit_quantity.setText(weight);
         holder.txt_calorie.setText(calorie + "kcal");
+
+
+        holder.edit_weight.setText(weight);
+
 
     }
 
@@ -85,7 +88,7 @@ public class CameraResultAdapter extends RecyclerView.Adapter<CameraResultAdapte
 
         public TextView txt_name, txt_calorie;
         public Spinner spinner;
-        public EditText edit_quantity;
+        public EditText edit_weight;
         public ImageView img_info, img_delete, img_edit;
 
         public ResultViewHolder(View itemView, final OnItemClickListener listener) {
@@ -93,7 +96,7 @@ public class CameraResultAdapter extends RecyclerView.Adapter<CameraResultAdapte
 
             txt_name = itemView.findViewById(R.id.txt_name);
             txt_calorie = itemView.findViewById(R.id.txt_calorie);
-            edit_quantity = itemView.findViewById(R.id.edit_quantity);
+            edit_weight = itemView.findViewById(R.id.edit_weight);
             img_info = itemView.findViewById(R.id.img_info);
             img_delete = itemView.findViewById(R.id.img_delete);
             img_edit = itemView.findViewById(R.id.img_edit);
@@ -102,16 +105,19 @@ public class CameraResultAdapter extends RecyclerView.Adapter<CameraResultAdapte
             //TODO: editText 완료 버튼 설정
 
             // 키패드에서 enter나 완료 실행시 listen하고 동작할 액션을 작성한다.
-            edit_quantity.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            edit_weight.setOnEditorActionListener(new EditText.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    String str = v.getText().toString();
+                    Log.d(TAG, "onEditorAction: " + str);
+                    int calorie = Integer.parseInt(str);
 
-//                    if (listener != null) {
-//                        int position = getAdapterPosition();
-//                        if (position != RecyclerView.NO_POSITION) {
-//                            listener.onSetWeight(position);
-//                        }
-//                    }
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onWeightChanged(position, calorie);
+                        }
+                    }
 
                     return false;
                 }
@@ -158,7 +164,7 @@ public class CameraResultAdapter extends RecyclerView.Adapter<CameraResultAdapte
 
             spinner = itemView.findViewById(R.id.spinner_size);
 
-            // 추후 서버에서 받아온 serving size로 custom해야 함
+            //TODO: 추후 서버에서 받아온 serving size로 custom해야 함
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext,
                     R.array.serving_size, android.R.layout.simple_spinner_item);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

@@ -67,7 +67,7 @@ public class EmailLoginActivity extends AppCompatActivity {
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(EmailLoginActivity.this, GalleryActivity.class);
+                Intent i = new Intent(EmailLoginActivity.this, HomeActivity.class);
                 startActivity(i);
                 finish();
             }

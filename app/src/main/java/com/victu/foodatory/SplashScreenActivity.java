@@ -36,10 +36,10 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            scheduleCameraJob();
-        }
-
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            scheduleCameraJob();
+//        }
+//
 
 //        Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
 //        animation.setInterpolator(new LinearInterpolator());
@@ -82,7 +82,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     //TODO: 앱 처음 켰을 때 실행.
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void scheduleCameraJob() {
-        Log.d(TAG, "scheduleCameraJob: ");
+        Log.d(TAG, "//scheduleCameraJob: ");
         final Uri MEDIA_URI = Uri.parse("content://" + MediaStore.AUTHORITY + "/");
 
         JobInfo.Builder builder = new JobInfo.Builder(11,

@@ -22,7 +22,7 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".ResultActivity"/>
         <activity android:name=".gallery.TestActivity"/>
-        <activity android:name=".SearchActivity" />
+        <activity android:name=".search.SearchActivity" />
         <activity
             android:label="My Gallery"
             android:theme="@style/AppTheme.NoActionBar"
